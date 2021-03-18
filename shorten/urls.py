@@ -6,5 +6,5 @@ app_name = 'shorten'
 
 urlpatterns = [
     path('', Index.as_view(), name="index"),
-    path('r/<str:url>/', Redirect.as_view(), name="redirect"),
+    path('<str:url>/', Redirect.as_view(), name="redirect"),
 ]

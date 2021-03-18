@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -18,29 +19,28 @@
             margin-top: 25px;
         }
 
-        p, a {
+        p,
+        a {
             margin: 10px;
-        }
-
-        p {
-            border: 2px solid #000;
         }
 
         a {
             color: rgb(34, 112, 185);
             font-size: 25px;
         }
-        
-        #url{
+
+        #url {
             width: 230px;
             height: 28px;
         }
+
         h1 {
             text-align: center;
             margin-bottom: 15px;
             font-weight: 500;
             border-bottom: 2px solid #000;
         }
+
         #btn {
             width: 75px;
             height: 31px;
@@ -51,20 +51,67 @@
             font-size: 17px;
         }
 
+        .recent {
+            position: absolute;
+            left: 70%;
+            right: 100px;
+            width: auto;
+            height: auto;
+            padding: 15px;
+            border-bottom: 5px solid #292626;
+        }
+
+        .recent h2 {
+            margin-bottom: 25px;
+            color: rgb(34, 112, 185);
+        }
+
+        .recent li {
+            margin-bottom: 15px;
+            list-style: circle;
+
+        }
+
+        .shortened-url-li {
+            color: rgb(34, 112, 185);
+            border-bottom: 1px solid rgb(34, 112, 185);
+            cursor: pointer;
+        }
+
+        .result {
+            width: auto;
+            padding: 4px;
+            font-weight: 550;
+            margin-bottom: 5px;
+        }
     </style>
 
 </head>
+
 <body>
     <div class="container">
         <h1>Shorten your URLs</h1>
 
-            <label>URL: <input type="url" name="url" id="url"></label>
-            <input type="submit" value="Shorten" id="btn">
+        <label>URL: <input type="url" name="url" id="url"></label>
+        <input type="submit" value="Shorten" id="btn">
 
         {% if url %}
 
-            <p>Your shortened URL: <a href="{% url 'shorten:redirect' url %}" target="_blank">/r/{{url}}</a> </p>
+        <p>Your shortened URL: <a href="{% url 'shorten:redirect' url %}" target="_blank">{{url}}</a>
+        </p>
 
+        {% endif %}
+        {% if recent_urls %}
+        <div class="recent">
+            <h2>Recently shortened URLs</h2>
+            <ul>
+                {% for url in recent_urls %}
+                <li onclick="window.open('/{{url.shortened_url}}', '_blank')">{{url.raw_url|truncatechars:35}}
+                    <strong>to</strong> <span class='shortened-url-li'>{{url.shortened_url}}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
         {% endif %}
     </div>
     <script>
@@ -82,20 +129,21 @@
 
 
             fetch('/', {
-                "method":"POST",
-                "headers":{
-                    "Accept":"application/json",
-                    "Content-Type":"application/json",
-                    "X-CSRFToken":csrf
+                "method": "POST",
+                "headers": {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrf
                 },
-                "body":JSON.stringify(body)
+                "body": JSON.stringify(body)
             }).then(res => res.json()).then(data => {
                 const p = document.createElement('p');
-                p.textContent = data.msg
+                p.textContent = data.msg;
+                p.classList.add('result');
                 const a = document.createElement('a');
-                a.textContent = "{{request.META.HTTP_HOST}}/r/" + data.url;
-                
-                a.href = 'r/' + data.url;
+                a.textContent = "{{request.META.HTTP_HOST}}/" + data.url;
+
+                a.href = data.url;
                 a.target = '_blank';
 
                 container.appendChild(p);
@@ -109,4 +157,5 @@
 
     </script>
 </body>
+
 </html>

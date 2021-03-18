@@ -12,7 +12,10 @@ import json
 
 class Index(View):
     def get(self, request):
-        return render(request, 'index.html')
+        recent_urls = URL.objects.all().order_by('-date')[:15]
+        return render(request, 'index.html', {
+            "recent_urls":recent_urls
+        })
 
     def post(self, request):
         url_to_shorten = json.loads(request.body)['url']
