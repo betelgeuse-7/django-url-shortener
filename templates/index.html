@@ -14,6 +14,27 @@
             padding: 0;
         }
 
+        :root {
+            --main-blue: #2270b9;
+            --custom-green: #2aca60;
+        }
+
+        button {
+            width: 75px;
+            height: 31px;
+            border: none;
+            background-color: var(--main-blue);
+            color: #fff;
+            border-radius: 5px;
+            font-size: 17px;
+            cursor: pointer;
+        }
+
+        input[type='url'] {
+            width: 230px;
+            height: 28px;
+        }
+
         .container {
             margin-left: 25px;
             margin-top: 25px;
@@ -25,13 +46,8 @@
         }
 
         a {
-            color: rgb(34, 112, 185);
+            color: var(--main-blue);
             font-size: 25px;
-        }
-
-        #url {
-            width: 230px;
-            height: 28px;
         }
 
         h1 {
@@ -39,16 +55,6 @@
             margin-bottom: 15px;
             font-weight: 500;
             border-bottom: 2px solid #000;
-        }
-
-        #btn {
-            width: 75px;
-            height: 31px;
-            border: none;
-            background-color: rgb(34, 112, 185);
-            color: #fff;
-            border-radius: 5px;
-            font-size: 17px;
         }
 
         .recent {
@@ -63,7 +69,7 @@
 
         .recent h2 {
             margin-bottom: 25px;
-            color: rgb(34, 112, 185);
+            color: var(--main-blue);
         }
 
         .recent li {
@@ -73,8 +79,8 @@
         }
 
         .shortened-url-li {
-            color: rgb(34, 112, 185);
-            border-bottom: 1px solid rgb(34, 112, 185);
+            color: var(--main-blue);
+            border-bottom: 1px solid var(--main-blue);
             cursor: pointer;
         }
 
@@ -83,6 +89,19 @@
             padding: 4px;
             font-weight: 550;
             margin-bottom: 5px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #custom-url-btn {
+            width: 90px;
+            background-color: var(--custom-green);
+        }
+
+        #custom-url-input {
+            border: 1px solid var(--custom-green);
         }
     </style>
 
@@ -93,7 +112,10 @@
         <h1>Shorten your URLs</h1>
 
         <label>URL: <input type="url" name="url" id="url"></label>
-        <input type="submit" value="Shorten" id="btn">
+        <button type="submit" id="btn">Shorten</button>
+        <button id="custom-url-btn">Custom</button>
+        <label id='custom-url-input-label' class='hidden'>Custom shortened URL: <input type="url" name="custom"
+                id="custom-url-input"></label>
 
         {% if url %}
 
@@ -117,14 +139,32 @@
     <script>
         const btn = document.getElementById('btn');
         const container = document.querySelector('.container');
+        const customUrlBtn = document.getElementById('custom-url-btn');
+        const customUrlInput = document.getElementById('custom-url-input');
+        const customUrlInputLabel = document.getElementById('custom-url-input-label');
+
+
+        function showCustomUrlInput() {
+            customUrlInputLabel.classList.remove('hidden');
+        }
 
         const sendData = () => {
             const csrf = "{{csrf_token}}"
 
             const url = document.getElementById('url').value;
 
+            let customUrl = false;
+
+            // check if the custom url input has a value && if the input is not only whitespaces. 
+            if (customUrlInput.value && /\S/.test(customUrlInput.value)) {
+                // get rid of whitespaces.
+                customUrl = customUrlInput.value.trim();
+                // whitespaces between words ?
+            }
+
             const body = {
-                url: url
+                url: url,
+                custom_url: customUrl
             }
 
 
@@ -153,6 +193,7 @@
         }
 
         btn.addEventListener('click', sendData);
+        customUrlBtn.addEventListener('click', showCustomUrlInput);
 
 
     </script>
