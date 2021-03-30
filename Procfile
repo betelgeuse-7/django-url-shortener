@@ -1,1 +1,1 @@
-web: gunicorn daysNemotions.wsgi
+web: gunicorn urlshortener.wsgi
