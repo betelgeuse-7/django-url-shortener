@@ -18,17 +18,26 @@ class Index(View):
         })
 
     def post(self, request):
-        url_to_shorten = json.loads(request.body)['url']
+        try:
+            url_to_shorten = json.loads(request.body)['url']
+            #ignoring wihtespaces.
+            custom_url = json.loads(request.body)['custom_url']
+        except:
+            return JsonResponse({
+                "msg": "Missing credentials",
+                "url": "missing-credentials"
+            })
+        
+        raw_urls = []
 
         if url_to_shorten:
             urls = URL.objects.all()
-            raw_urls = []
 
             for url in urls:
                 raw_urls.append(url.raw_url)
 
+            """URL ALREADY EXISTS"""
             if url_to_shorten in raw_urls:
-
                 try:
                     existing_short_url = URL.objects.get(
                         raw_url=url_to_shorten).shortened_url
@@ -46,6 +55,27 @@ class Index(View):
                         }
                     )
             else:
+                """USE CUSTOM URL IF EXISTS"""
+                if custom_url:
+                    if custom_url in raw_urls:
+                        existing_custom_url = URL.objects.get(
+                        raw_url=url_to_shorten).shortened_url
+                        return JsonResponse(
+                            {
+                                "msg": "This url already exists.",
+                                "url": existing_custom_url
+                            }
+                        )
+                    else:
+                        URL.objects.create(raw_url=url_to_shorten, shortened_url=custom_url)
+                        return JsonResponse(
+                            {
+                                "msg": "URL has been successfully shortened. ",
+                                "url": custom_url
+                            }
+                        )
+                        
+                """IF NO CUSTOM URL"""
                 url = generate_random_url(10)
 
                 URL.objects.create(raw_url=url_to_shorten, shortened_url=url)
@@ -56,10 +86,6 @@ class Index(View):
                         "url": url
                     }
                 )
-
-        else:
-            return render(request, 'error.html')
-
 
 class Redirect(View):
     def get(self, request, url):
